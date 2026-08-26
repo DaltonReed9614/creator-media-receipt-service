@@ -1,12 +1,12 @@
 # Send a creator's media receipt after processing
 
-This little TypeScript service tracks one piece of content from an ingested source name, through a processing job, and finally to the creator's delivery receipt once the job finishes. Infrai handles the send and lookup through one API and a single`INFRAI_API_KEY`; the app keeps the media decision in plain typed code.
+This small TypeScript service follows one piece of content from an ingested source name to a processing job and, once that job is complete, to the creator's delivery receipt. Infrai handles the send and lookup through one API and a single `INFRAI_API_KEY`; the application keeps the media decision in ordinary typed code.
 
-The runnable path is`POST /creator-deliveries`. A queued or processing asset returns`awaiting_processing`and sends nothing. A completed asset builds the receipt, takes the returned`message_id`into the email lookup, then returns`receipt_sent`with the observable email record.
+The runnable path is `POST /creator-deliveries`. A queued or processing asset returns `awaiting_processing` and sends nothing. A completed asset produces the receipt, passes the returned `message_id` into the email lookup, then returns `receipt_sent` with the observable email record.
 
 ## Run the completed-job path
 
-Install deps, set the recipient and key, then run the sample against the live email endpoints:
+Install dependencies, provide the recipient and key, then run the sample against the live email endpoints:
 
 ```bash
 npm install
@@ -15,7 +15,7 @@ export DEMO_EMAIL_TO="creator@example.com"
 npm run demo
 ```
 
-The script submits order`ORD-1042`for the processed video`Studio Session 07`. Its success result has`state: "receipt_sent"`, the processing`jobId`, the email`messageId`, and the record returned for that message.
+The script submits order `ORD-1042` for the processed video `Studio Session 07`. Its successful result has `state: "receipt_sent"`, the processing `jobId`, the email `messageId`, and the record returned for that message.
 
 For a local route instead, start the server:
 
@@ -45,11 +45,11 @@ curl -X POST http://localhost:3000/creator-deliveries \
 
 ## Where the handoff happens
 
-`creator_delivery.ts` owns the useful boundary. It refuses to notify while processing state is`queued`or`processing`. For`completed`, it builds content-specific receipt HTML, sends it with`infrai.email.send`, and feeds that call's`message_id`to`infrai.email.get`. The write carries an idempotency key from the order and job, so retrying the same delivery keeps the business action stable.
+`creator_delivery.ts` owns the useful boundary. It refuses to notify while the processing state is `queued` or `processing`. For `completed`, it builds content-specific receipt HTML, sends it with `infrai.email.send`, and feeds that call's `message_id` to `infrai.email.get`. The write carries an idempotency key derived from the order and job, so retrying the same delivery keeps the business action stable.
 
-`infrai_email.ts` is deliberately thin: every call names its HTTP method, reads the response envelope before deciding status, surfaces rejected requests, and backs off on rate limits. There is no SDK to install for the integration itself; it is a pair of plain REST calls behind a typed interface.
+`infrai_email.ts` is deliberately thin: every call names its HTTP method, reads the response envelope before making a status decision, surfaces rejected requests, and backs off on rate limits. There is no SDK to install for the integration itself; it is a pair of plain REST calls behind a typed interface.
 
-One real gotcha lives in the workflow, not the HTML: job completion is the notification boundary. Calling the service while an encode is still moving would make a receipt whose delivery isn't ready, so the state check happens before any email call.
+One real gotcha sits in the workflow rather than the HTML: job completion is the notification boundary. Calling the service while an encode is still moving would create a receipt whose delivery is not ready, so the state check happens before any email call.
 
 ## Check the decision locally
 
@@ -58,7 +58,7 @@ npm test
 npm run typecheck
 ```
 
-The focused test gives a queued asset and expects`awaiting_processing`with zero sends. It also gives a completed asset, expects`receipt_sent`, and checks that the exact ID returned by the send becomes the lookup input.
+The focused test supplies a queued asset and expects `awaiting_processing` with zero sends. It also supplies a completed asset, expects `receipt_sent`, and verifies that the exact ID returned by the send becomes the lookup input.
 
 ## License
 
